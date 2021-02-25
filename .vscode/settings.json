@@ -99,8 +99,14 @@
         {
             "previewLimit": 50,
             "driver": "SQLite",
-            "database": "/home/walde/workspace/database/test_db",
-            "name": "test_db"
+            "name": "game_db",
+            "database": "${workspaceFolder:game_01}/build/database/game_db"
+        },
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "template_db",
+            "database": "${workspaceFolder:game_01}/template_database/empty_test_db"
         }
     ]
 }

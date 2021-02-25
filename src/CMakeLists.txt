@@ -1,4 +1,1 @@
- target_sources(${TARGET_NAME} PRIVATE 
- database.hxx
- database.cxx
- )
+add_subdirectory(database)

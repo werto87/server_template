@@ -1,3 +1,5 @@
 build/*
 .cache/*
 .vscode
+game_db.session.sql
+template_db.session.sql

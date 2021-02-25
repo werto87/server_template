@@ -50,10 +50,12 @@ IF(BUILD_TESTS)
     add_subdirectory(test) 
 ENDIF(BUILD_TESTS)
 
-
+if (CMAKE_BINARY_DIR)
+target_compile_definitions(${TARGET_NAME} PRIVATE PATH_TO_BINARY="${CMAKE_BINARY_DIR}")
+endif()
 
 ######## add sub dir
-#add_subdirectory(src) 
+add_subdirectory(src) 
 
 ####### include what you use
 #find_program(iwyu_path NAMES include-what-you-use iwyu)
