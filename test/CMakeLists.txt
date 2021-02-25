@@ -7,7 +7,6 @@ add_executable(${TEST_TARGET_NAME}
 target_link_libraries(${TEST_TARGET_NAME}
 ${PROJECT_OPTIONS}
 CONAN_PKG::catch2
-# /home/walde/projects/convenienceFunctionForSoci/build/lib/libconvenienceFunctionForSoci.a
 )
 target_include_directories(${TEST_TARGET_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR})
 
