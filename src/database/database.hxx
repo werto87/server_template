@@ -11,6 +11,5 @@ BOOST_FUSION_DEFINE_STRUCT ((), Position, (std::string, id) (unsigned long, x) (
 
 void createEmptyDatabase ();
 void createTables ();
-soci::session &connectToDatabase ();
 
 #endif /* B86FE02F_B7D0_4435_9031_A334C305B294 */
