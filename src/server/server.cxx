@@ -128,12 +128,10 @@ Server::createAccount (std::string const &msg)
       boost::algorithm::split (result, msg, boost::is_any_of (","));
       if (result.size () >= 2)
         {
-          database::createAccount ("", "");
-          // database::createAccount123 (result.at (0), result.at (1));
-          //   if (auto account = database::createAccount (result.at (0), result.at (1)); account.has_value ())
-          //     {
-          //       // serialize account and add it to sendQueue
-          //     }
+          if (auto account = database::createAccount (result.at (0), result.at (1)); account.has_value ())
+            {
+              // serialize account and add it to sendQueue
+            }
         }
     }
 }

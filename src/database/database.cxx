@@ -1,6 +1,7 @@
 #include "src/database/database.hxx"
 #include "src/database/constant.hxx"
 #include <boost/lexical_cast.hpp>
+#include <boost/optional/optional.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
@@ -28,20 +29,18 @@ createTables ()
   confu_soci::createTableForStruct<Game> (sql);
 }
 
-// todo find out why this cant be deinfed in cxx
-// maybe its because of boost optional?
-// maybe its because of circular inclusion?
-// boost::optional<Account>
-
 static boost::uuids::random_generator generator;
 
-void
+boost::optional<Account>
+// void
 createAccount (std::string const &firstName, std::string const &lastName)
 {
+  auto test = boost::optional<Account>{};
   soci::session sql (soci::sqlite3, pathToTestDatabase);
   auto uuid = boost::lexical_cast<std::string> (generator ());
   confu_soci::insertStruct (sql, Account{ .uuid = uuid, .firstName = firstName, .lastName = lastName });
-  //   return confu_soci::findStruct<Account> (sql, "id", uuid);
+  confu_soci::findStruct<Account> (sql, "id", uuid);
+  return test;
 }
 
 } // namespace database
