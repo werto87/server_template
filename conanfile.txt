@@ -3,7 +3,7 @@ boost/1.75.0
 # fmt/7.0.3
 # imgui-sfml/2.1@bincrafters/stable
 # magic_enum/0.6.6
-confu_soci/0.0.2@confu_soci/0.0.2  #from https://github.com/werto87/conan_confu_soci
+confu_soci/0.1.1@confu_soci/0.1.1  #from https://github.com/werto87/conan_confu_soci
 catch2/2.13.1
 [generators]
 cmake
