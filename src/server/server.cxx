@@ -1,10 +1,12 @@
 #include "src/server/server.hxx"
-//#include "src/database/database.hxx"
+#include "src/logic/logic.hxx"
 #include <algorithm>
 #include <boost/algorithm/algorithm.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/split.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/io_context.hpp>
 #include <boost/beast.hpp>
@@ -16,6 +18,7 @@
 #include <boost/random/random_device.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/range/adaptor/indexed.hpp>
+#include <boost/serialization/optional.hpp>
 #include <boost/type_index.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
@@ -44,20 +47,6 @@ Server::my_read (websocket::stream<tcp_stream> &ws_)
   co_return msg;
 }
 
-void
-Server::handleMessage (std::string const &msg)
-{
-  std::cout << "handleMessage: " << msg << std::endl;
-  if (boost::algorithm::starts_with (msg, "create new account|"))
-    {
-      createAccount (msg);
-    }
-  if (boost::algorithm::contains (msg, "player direction|"))
-    {
-      createPlayer (msg);
-    }
-}
-
 awaitable<void>
 Server::readFromClient (std::shared_ptr<websocket::stream<tcp_stream> > ws_)
 {
@@ -66,7 +55,8 @@ Server::readFromClient (std::shared_ptr<websocket::stream<tcp_stream> > ws_)
       for (;;)
         {
           auto readResult = co_await my_read (*ws_);
-          handleMessage (readResult);
+          auto result = handleMessage (readResult);
+          msgToSend.insert (msgToSend.end (), make_move_iterator (result.begin ()), make_move_iterator (result.end ()));
         }
     }
   catch (std::exception &e)
@@ -89,7 +79,7 @@ Server::writeToClient (std::shared_ptr<websocket::stream<tcp_stream> > ws_)
           while (not msgToSend.empty ())
             {
               co_await ws_->async_write (buffer (msgToSend.back ()), use_awaitable);
-              msgToSend.pop ();
+              msgToSend.pop_back ();
             }
         }
     }
@@ -116,26 +106,4 @@ Server::listener ()
       co_spawn (
           executor, [this, ws_] () mutable { return writeToClient (ws_); }, detached);
     }
-}
-
-void
-Server::createAccount (std::string const &msg)
-{
-  std::vector<std::string> result{};
-  boost::algorithm::split (result, msg, boost::is_any_of ("|"));
-  if (result.size () >= 1)
-    {
-      boost::algorithm::split (result, msg, boost::is_any_of (","));
-      if (result.size () >= 2)
-        {
-          if (auto account = database::createAccount (result.at (0), result.at (1)); account.has_value ())
-            {
-              // serialize account and add it to sendQueue
-            }
-        }
-    }
-}
-void
-Server::createPlayer (std::string const &msg)
-{
 }

@@ -42,29 +42,9 @@ conan_basic_setup(TARGETS)
 
 
 set(TARGET_NAME project)
-add_executable(${TARGET_NAME} "main.cxx")
+add_executable(${TARGET_NAME})
 
-####### create executable
-OPTION(BUILD_TESTS "enable tests" ON)
-IF(BUILD_TESTS)
-    enable_testing()
-    add_subdirectory(test) 
-ENDIF(BUILD_TESTS)
-
-if (CMAKE_BINARY_DIR)
-target_compile_definitions(${TARGET_NAME} PRIVATE PATH_TO_BINARY="${CMAKE_BINARY_DIR}")
-endif()
-
-######## add sub dir
 add_subdirectory(src) 
-
-####### include what you use
-#find_program(iwyu_path NAMES include-what-you-use iwyu)
-#set_property(TARGET ${TARGET_NAME} PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
-
-
-####### link
-
 target_include_directories(${TARGET_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 target_include_directories(${TARGET_NAME} PRIVATE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
@@ -74,8 +54,37 @@ target_include_directories(${TARGET_NAME} PRIVATE
 
 target_link_libraries(${TARGET_NAME} PRIVATE ${PROJECT_WARNINGS} ${PROJECT_OPTIONS}
 CONAN_PKG::confu_soci
+CONAN_PKG::confu_boost
 CONAN_PKG::boost
 )
+
+####### create executable
+OPTION(BUILD_TESTS "enable tests" ON)
+IF(BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(test) 
+ENDIF(BUILD_TESTS)
+
+# add main after  add_subdirectory(test) so we can take the sources from ${TARGET_NAME} and dont have to remove main.cxx from that list
+target_sources(${TARGET_NAME} PRIVATE 
+"main.cxx"
+)
+ 
+if (CMAKE_BINARY_DIR)
+target_compile_definitions(${TARGET_NAME} PRIVATE PATH_TO_BINARY="${CMAKE_BINARY_DIR}")
+endif()
+
+######## add sub dir
+
+
+####### include what you use
+#find_program(iwyu_path NAMES include-what-you-use iwyu)
+#set_property(TARGET ${TARGET_NAME} PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
+
+
+####### link
+
+
 
 
 

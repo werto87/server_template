@@ -5,6 +5,7 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
+#include <confu_soci/convenienceFunctionForSoci.hxx>
 #include <filesystem>
 
 namespace database
@@ -29,18 +30,18 @@ createTables ()
   confu_soci::createTableForStruct<Game> (sql);
 }
 
-static boost::uuids::random_generator generator;
-
 boost::optional<Account>
-// void
 createAccount (std::string const &firstName, std::string const &lastName)
 {
-  auto test = boost::optional<Account>{};
   soci::session sql (soci::sqlite3, pathToTestDatabase);
-  auto uuid = boost::lexical_cast<std::string> (generator ());
-  confu_soci::insertStruct (sql, Account{ .uuid = uuid, .firstName = firstName, .lastName = lastName });
-  confu_soci::findStruct<Account> (sql, "id", uuid);
-  return test;
+  return confu_soci::findStruct<Account> (sql, "id", confu_soci::insertStruct (sql, Account{ .id = {}, .firstName = firstName, .lastName = lastName }, true, true));
+}
+
+boost::optional<database::Character>
+createCharacter (std::string const &accoundId)
+{
+  soci::session sql (soci::sqlite3, pathToTestDatabase);
+  return confu_soci::findStruct<Character> (sql, "id", confu_soci::insertStruct (sql, Character{ .id = {}, .accountId = accoundId, .positionId = {} }, true, true));
 }
 
 } // namespace database
