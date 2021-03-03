@@ -36,7 +36,7 @@ createAccount (std::string const &msg)
   auto result = std::vector<std::string>{};
   std::vector<std::string> splitMesssage{};
   boost::algorithm::split (splitMesssage, msg, boost::is_any_of ("|"));
-  if (splitMesssage.size () >= 1)
+  if (splitMesssage.size () >= 2)
     {
       boost::algorithm::split (splitMesssage, splitMesssage.at (1), boost::is_any_of (","));
       if (splitMesssage.size () >= 2)
@@ -45,7 +45,7 @@ createAccount (std::string const &msg)
             {
               auto accountStringStream = std::stringstream{};
               boost::archive::text_oarchive accountArchive{ accountStringStream };
-              accountArchive << account;
+              accountArchive << account.value ();
               result.push_back (accountStringStream.str ());
             }
         }
@@ -59,18 +59,14 @@ createCharacter (std::string const &msg)
   auto result = std::vector<std::string>{};
   std::vector<std::string> splitMesssage{};
   boost::algorithm::split (splitMesssage, msg, boost::is_any_of ("|"));
-  if (splitMesssage.size () >= 1)
+  if (splitMesssage.size () >= 2)
     {
-      boost::algorithm::split (splitMesssage, msg, boost::is_any_of (","));
-      if (splitMesssage.size () >= 2)
+      if (auto character = database::createCharacter (splitMesssage.at (1)); character.has_value ())
         {
-          if (auto character = database::createCharacter (splitMesssage.at (0)); character.has_value ())
-            {
-              auto characterStringStream = std::stringstream{};
-              boost::archive::text_oarchive characterArchive{ characterStringStream };
-              characterArchive << character;
-              result.push_back (characterStringStream.str ());
-            }
+          auto characterStringStream = std::stringstream{};
+          boost::archive::text_oarchive characterArchive{ characterStringStream };
+          characterArchive << character.value ();
+          result.push_back (characterStringStream.str ());
         }
     }
   return result;

@@ -14,6 +14,8 @@ ${TARGET_SOURCES}
  endif()
 
 target_link_libraries(${TEST_TARGET_NAME}
+${PROJECT_WARNINGS}
+${PROJECT_OPTIONS}
  CONAN_PKG::catch2
 ${TARGET_LIBS}
 )

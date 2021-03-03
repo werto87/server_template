@@ -52,7 +52,9 @@ target_include_directories(${TARGET_NAME} PRIVATE
   )
   
 
-target_link_libraries(${TARGET_NAME} PRIVATE ${PROJECT_WARNINGS} ${PROJECT_OPTIONS}
+target_link_libraries(${TARGET_NAME} PRIVATE
+${PROJECT_WARNINGS}
+${PROJECT_OPTIONS}
 CONAN_PKG::confu_soci
 CONAN_PKG::confu_boost
 CONAN_PKG::boost

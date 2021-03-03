@@ -22,8 +22,7 @@ void
 createTables ()
 {
   soci::session sql (soci::sqlite3, pathToTestDatabase);
-  confu_soci::createTableForStruct<Position> (sql);
-  confu_soci::createTableForStruct<Character> (sql, { { "positionId", "Position", "id" }, { "accountId", "Account", "id" } });
+  confu_soci::createTableForStruct<Character> (sql, { { "accountId", "Account", "id" } });
   confu_soci::createTableForStruct<Account> (sql);
   confu_soci::createTableForStruct<BoardElement> (sql, { { "boardId", "Board", "id" } });
   confu_soci::createTableForStruct<Board> (sql, { { "gameId", "Game", "id" } });
@@ -41,7 +40,7 @@ boost::optional<database::Character>
 createCharacter (std::string const &accoundId)
 {
   soci::session sql (soci::sqlite3, pathToTestDatabase);
-  return confu_soci::findStruct<Character> (sql, "id", confu_soci::insertStruct (sql, Character{ .id = {}, .accountId = accoundId, .positionId = {} }, true, true));
+  return confu_soci::findStruct<Character> (sql, "id", confu_soci::insertStruct (sql, Character{ .id = {}, .positionX = {}, .positionY = {}, .positionZ = {}, .accountId = accoundId }, true, true));
 }
 
 } // namespace database
