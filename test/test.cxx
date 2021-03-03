@@ -7,23 +7,6 @@
 #include <confu_soci/convenienceFunctionForSoci.hxx>
 namespace test
 {
-// TODO write some tests
-
-TEST_CASE ("handleMessage")
-{
-  database::createEmptyDatabase ();
-  handleMessage ("");
-}
-TEST_CASE ("createAccount the test")
-{
-  database::createEmptyDatabase ();
-  createAccount ("");
-}
-TEST_CASE ("createCharacter")
-{
-  database::createEmptyDatabase ();
-  createCharacter ("");
-}
 
 SCENARIO ("create an account with createAccount", "[createAccount]")
 {
@@ -74,4 +57,27 @@ SCENARIO ("create an character with createCharacter", "[createCharacter]")
   }
 }
 
+SCENARIO ("create an account with handleMessage", "[handleMessage]")
+{
+  GIVEN ("empty database")
+  {
+    database::createEmptyDatabase ();
+    database::createTables ();
+    WHEN ("the account gets created")
+    {
+      auto accountAsString = handleMessage ("create new account|joe,doe").at (0);
+      THEN ("account is in table and result from create account can be serialized into account object")
+      {
+        auto accountStringStream = std::stringstream{};
+        accountStringStream << accountAsString;
+        boost::archive::text_iarchive ia (accountStringStream);
+        auto account = database::Account{};
+        ia >> account;
+        REQUIRE (account.firstName == "joe");
+        soci::session sql (soci::sqlite3, pathToTestDatabase);
+        REQUIRE (confu_soci::findStruct<database::Account> (sql, "firstName", "joe").has_value ());
+      }
+    }
+  }
+}
 }
