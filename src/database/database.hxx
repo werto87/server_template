@@ -4,11 +4,7 @@
 #include "confu_boost/confuBoost.hxx"
 #include "confu_soci/convenienceFunctionForSoci.hxx"
 #include "src/database/constant.hxx"
-#include <boost/lexical_cast.hpp>
 #include <boost/optional.hpp>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
 #include <filesystem>
 
 BOOST_FUSION_DEFINE_STRUCT ((database), Character, (std::string, id) (long, positionX) (long, positionY) (long, positionZ) (std::string, accountId))
