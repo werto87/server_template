@@ -23,7 +23,7 @@ handleMessage (std::string const &msg)
     {
       result = createAccount (msg);
     }
-  if (boost::algorithm::contains (msg, "player direction|"))
+  else if (boost::algorithm::contains (msg, "player direction|"))
     {
       result = createCharacter (msg);
     }
