@@ -44,7 +44,11 @@ conan_basic_setup(TARGETS)
 set(TARGET_NAME project)
 add_executable(${TARGET_NAME})
 
+######## add sub dir
 add_subdirectory(src) 
+
+
+####### link
 target_include_directories(${TARGET_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 target_include_directories(${TARGET_NAME} PRIVATE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
@@ -76,18 +80,9 @@ if (CMAKE_BINARY_DIR)
 target_compile_definitions(${TARGET_NAME} PRIVATE PATH_TO_BINARY="${CMAKE_BINARY_DIR}")
 endif()
 
-######## add sub dir
-
-
 ####### include what you use
 #find_program(iwyu_path NAMES include-what-you-use iwyu)
 #set_property(TARGET ${TARGET_NAME} PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
-
-
-####### link
-
-
-
 
 
 #print all variables used in cmake
