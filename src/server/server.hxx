@@ -1,7 +1,6 @@
 #ifndef AD140436_3FBA_4D63_8C0E_9113B92859E0
 #define AD140436_3FBA_4D63_8C0E_9113B92859E0
 
-#include "src/database/database.hxx"
 #include <boost/asio.hpp>
 #include <boost/beast.hpp>
 #include <queue>
