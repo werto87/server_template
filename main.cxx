@@ -7,7 +7,7 @@ main ()
 {
   try
     {
-      boost::asio::io_context io_context (1);
+      boost::asio::io_context io_context{};
       boost::asio::signal_set signals (io_context, SIGINT, SIGTERM);
       signals.async_wait ([&] (auto, auto) { io_context.stop (); });
       auto server = Server{ io_context };
