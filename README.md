@@ -3,5 +3,5 @@ single thread, non-blocking
 
 
 ## Tested on linux with clang13 and gcc11
-If you like to run it with clang 
-seach in the project for enable if build with clang
+- The server listens on "localhost:55555". If you like something which can connect to the server try 
+- If you like to run it with clang search in the project for enable if build with clang.
