@@ -97,14 +97,21 @@ Server::listener ()
   ip::tcp::acceptor acceptor (executor, { ip::tcp::v4 (), 55555 });
   for (;;)
     {
-      ip::tcp::socket socket = co_await acceptor.async_accept (use_awaitable);
-      auto ws_ = std::make_shared<websocket::stream<tcp_stream> > (std::move (socket));
-      ws_->set_option (websocket::stream_base::timeout::suggested (role_type::server));
-      ws_->set_option (websocket::stream_base::decorator ([] (websocket::response_type &res) { res.set (http::field::server, std::string (BOOST_BEAST_VERSION_STRING) + " websocket-server-async"); }));
-      co_await ws_->async_accept (use_awaitable);
-      co_spawn (
-          executor, [this, ws_] () mutable { return readFromClient (ws_); }, detached);
-      co_spawn (
-          executor, [this, ws_] () mutable { return writeToClient (ws_); }, detached);
+      try
+        {
+          ip::tcp::socket socket = co_await acceptor.async_accept (use_awaitable);
+          auto ws_ = std::make_shared<websocket::stream<tcp_stream> > (std::move (socket));
+          ws_->set_option (websocket::stream_base::timeout::suggested (role_type::server));
+          ws_->set_option (websocket::stream_base::decorator ([] (websocket::response_type &res) { res.set (http::field::server, std::string (BOOST_BEAST_VERSION_STRING) + " websocket-server-async"); }));
+          co_await ws_->async_accept (use_awaitable);
+          co_spawn (
+              executor, [this, ws_] () mutable { return readFromClient (ws_); }, detached);
+          co_spawn (
+              executor, [this, ws_] () mutable { return writeToClient (ws_); }, detached);
+        }
+      catch (std::exception &e)
+        {
+          std::cout << "Server::listener () connect  Exception : " << e.what () << std::endl;
+        }
     }
 }
