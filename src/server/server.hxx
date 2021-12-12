@@ -11,8 +11,6 @@
 #include <memory>
 #include <string>
 
-typedef boost::beast::websocket::stream<boost::beast::tcp_stream> Websocket;
-
 class Server
 {
 public:
@@ -25,8 +23,6 @@ private:
   boost::asio::awaitable<std::string> my_read (Websocket &ws_);
 
   boost::asio::awaitable<void> readFromClient (std::list<std::shared_ptr<User> >::iterator user, Websocket &connection);
-
-  boost::asio::awaitable<void> writeToClient (std::shared_ptr<User> user, std::weak_ptr<Websocket> &connection);
 
   boost::asio::ip::tcp::endpoint _endpoint{};
   std::list<std::shared_ptr<User> > users{};

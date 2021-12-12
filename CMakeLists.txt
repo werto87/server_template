@@ -1,3 +1,4 @@
+#TODO use cmake to find out if the compiler is gcc or clang
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -std=c++20 -stdlib=libc++") #enable if build with clang
 # set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -std=c++20 -stdlib=libc++ -lc++abi") #enable if build with clang
 cmake_minimum_required(VERSION 3.17)
