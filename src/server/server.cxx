@@ -1,44 +1,22 @@
-#include "src/server/server.hxx"
+#include "server.hxx"
 #include "src/logic/logic.hxx"
 #include <algorithm>
-#include <boost/algorithm/algorithm.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/algorithm/string/split.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/io_context.hpp>
 #include <boost/beast.hpp>
 #include <boost/beast/websocket.hpp>
-#include <boost/date_time/posix_time/posix_time_duration.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/optional.hpp>
-#include <boost/optional/optional_io.hpp>
-#include <boost/random/random_device.hpp>
-#include <boost/random/uniform_int_distribution.hpp>
-#include <boost/range/adaptor/indexed.hpp>
-#include <boost/serialization/optional.hpp>
-#include <boost/type_index.hpp>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
-#include <coroutine> // enable if build with gcc
-//#include <experimental/coroutine> enable if build with clang
 #include <iostream>
-#include <sstream>
-#include <stdexcept>
-#include <string>
-#include <tuple>
-#include <type_traits>
+
+#include <coroutine> // enable if build with gcc
+//#include <experimental/coroutine> //enable if build with clang
 
 using namespace boost::beast;
 using namespace boost::asio;
-
-Server::Server (boost::asio::io_context &io_context) : _io_context{ io_context } {}
+namespace beast = boost::beast; // from <boost/beast.hpp>
+Server::Server (boost::asio::ip::tcp::endpoint const &endpoint) : _endpoint{ endpoint } {}
 
 awaitable<std::string>
-Server::my_read (websocket::stream<tcp_stream> &ws_)
+Server::my_read (Websocket &ws_)
 {
   std::cout << "read" << std::endl;
   flat_buffer buffer;
@@ -49,44 +27,53 @@ Server::my_read (websocket::stream<tcp_stream> &ws_)
 }
 
 awaitable<void>
-Server::readFromClient (std::shared_ptr<websocket::stream<tcp_stream> > ws_)
+Server::readFromClient (std::list<std::shared_ptr<User> >::iterator user, Websocket &connection)
 {
   try
     {
       for (;;)
         {
-          auto readResult = co_await my_read (*ws_);
-          auto result = handleMessage (readResult);
-          msgToSend.insert (msgToSend.end (), make_move_iterator (result.begin ()), make_move_iterator (result.end ()));
+          auto readResult = co_await my_read (connection);
+          handleMessage (readResult, users, *user);
         }
     }
   catch (std::exception &e)
     {
-      std::cout << "echo  Exception: " << e.what () << std::endl;
+      removeUser (user);
+      std::cout << "read Exception: " << e.what () << std::endl;
     }
 }
 
+void
+Server::removeUser (std::list<std::shared_ptr<User> >::iterator user)
+{
+  users.erase (user);
+}
+
 awaitable<void>
-Server::writeToClient (std::shared_ptr<websocket::stream<tcp_stream> > ws_)
+Server::writeToClient (std::shared_ptr<User> user, std::weak_ptr<Websocket> &connection)
 {
   try
     {
-      for (;;)
+      while (not connection.expired ())
         {
+          // TODO this is polling because we check every 100 milli seconds.
           auto timer = steady_timer (co_await this_coro::executor);
-          using namespace std::chrono_literals;
-          timer.expires_after (1s);
+          auto const waitForNewMessagesToSend = std::chrono::milliseconds{ 100 };
+          timer.expires_after (waitForNewMessagesToSend);
           co_await timer.async_wait (use_awaitable);
-          while (not msgToSend.empty ())
+          while (not user->msgQueue.empty () && not connection.expired ())
             {
-              co_await ws_->async_write (buffer (msgToSend.back ()), use_awaitable);
-              msgToSend.pop_back ();
+              auto tmpMsg = std::move (user->msgQueue.front ());
+              std::cout << " msg: " << tmpMsg << std::endl;
+              user->msgQueue.pop_front ();
+              co_await connection.lock ()->async_write (buffer (tmpMsg), use_awaitable);
             }
         }
     }
   catch (std::exception &e)
     {
-      std::printf ("echo Exception:  %s\n", e.what ());
+      std::cout << "write Exception: " << e.what () << std::endl;
     }
 }
 
@@ -94,20 +81,22 @@ awaitable<void>
 Server::listener ()
 {
   auto executor = co_await this_coro::executor;
-  ip::tcp::acceptor acceptor (executor, { ip::tcp::v4 (), 55555 });
+  ip::tcp::acceptor acceptor (executor, _endpoint);
   for (;;)
     {
       try
         {
-          ip::tcp::socket socket = co_await acceptor.async_accept (use_awaitable);
-          auto ws_ = std::make_shared<websocket::stream<tcp_stream> > (std::move (socket));
-          ws_->set_option (websocket::stream_base::timeout::suggested (role_type::server));
-          ws_->set_option (websocket::stream_base::decorator ([] (websocket::response_type &res) { res.set (http::field::server, std::string (BOOST_BEAST_VERSION_STRING) + " websocket-server-async"); }));
-          co_await ws_->async_accept (use_awaitable);
+          auto socket = co_await acceptor.async_accept (use_awaitable);
+          auto connection = std::make_shared<Websocket> (std::move (socket));
+          users.emplace_back (std::make_shared<User> (User{ {} }));
+          std::list<std::shared_ptr<User> >::iterator user = std::next (users.end (), -1);
+          connection->set_option (websocket::stream_base::timeout::suggested (role_type::server));
+          connection->set_option (websocket::stream_base::decorator ([] (websocket::response_type &res) { res.set (http::field::server, std::string (BOOST_BEAST_VERSION_STRING) + " websocket-server-async"); }));
+          co_await connection->async_accept (use_awaitable);
           co_spawn (
-              executor, [this, ws_] () mutable { return readFromClient (ws_); }, detached);
+              executor, [connection, this, &user] () mutable { return readFromClient (user, *connection); }, detached);
           co_spawn (
-              executor, [this, ws_] () mutable { return writeToClient (ws_); }, detached);
+              executor, [connectionWeakPointer = std::weak_ptr<Websocket>{ connection }, this, &user] () mutable { return writeToClient (*user, connectionWeakPointer); }, detached);
         }
       catch (std::exception &e)
         {

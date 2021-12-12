@@ -1,5 +1,5 @@
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -std=c++20 -stdlib=libc++") #enable if build with clang
-#set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -std=c++20 -stdlib=libc++ -lc++abi") #enable if build with clang
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -std=c++20 -stdlib=libc++") #enable if build with clang
+# set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -std=c++20 -stdlib=libc++ -lc++abi") #enable if build with clang
 cmake_minimum_required(VERSION 3.17)
 project(project VERSION 1.0.0
   DESCRIPTION project
@@ -77,7 +77,7 @@ target_sources(${TARGET_NAME} PRIVATE
 if (CMAKE_BINARY_DIR)
 target_compile_definitions(${TARGET_NAME} PRIVATE PATH_TO_BINARY="${CMAKE_BINARY_DIR}")
 endif()
-
+target_compile_definitions(${TARGET_NAME} PRIVATE _LIBCPP_ENABLE_CXX20_REMOVED_TYPE_TRAITS)
 ####### include what you use
 #find_program(iwyu_path NAMES include-what-you-use iwyu)
 #set_property(TARGET ${TARGET_NAME} PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
