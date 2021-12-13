@@ -31,7 +31,7 @@ User::writeToClient (std::weak_ptr<Websocket> &connection)
                   abort ();
                 }
             }
-          while (not msgQueue.empty () && not connection.expired ())
+          while (not connection.expired () && not msgQueue.empty ())
             {
               auto tmpMsg = std::move (msgQueue.front ());
               std::cout << " msg: " << tmpMsg << std::endl;
