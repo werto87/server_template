@@ -45,3 +45,9 @@ User::writeToClient (std::weak_ptr<Websocket> &connection)
       std::cout << "write Exception: " << e.what () << std::endl;
     }
 }
+void
+User::sendMessageToUser (std::string const &message)
+{
+  msgQueue.push_back (message);
+  timer->cancel ();
+}

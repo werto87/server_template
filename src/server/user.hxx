@@ -7,14 +7,18 @@
 #include <deque>
 
 // TODO use cmake to find out if the compiler is gcc or clang
-// #include <experimental/coroutine> //enable if build with clang
+#include <experimental/coroutine> // disable if you do not like to use clang
 
 typedef boost::asio::use_awaitable_t<>::as_default_on_t<boost::asio::basic_waitable_timer<boost::asio::chrono::system_clock> > CoroTimer;
 using Websocket = boost::beast::websocket::stream<boost::asio::use_awaitable_t<>::as_default_on_t<boost::beast::tcp_stream> >;
 
-struct User
+class User
 {
+public:
   boost::asio::awaitable<void> writeToClient (std::weak_ptr<Websocket> &connection);
+  void sendMessageToUser (std::string const &message);
+
+private:
   std::deque<std::string> msgQueue{};
   std::shared_ptr<CoroTimer> timer{};
 };
