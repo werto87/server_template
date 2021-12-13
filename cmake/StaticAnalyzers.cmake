@@ -1,5 +1,5 @@
-option(ENABLE_CPPCHECK "Enable static analysis with cppcheck" OFF) #does not work with c++20 features
-option(ENABLE_CLANG_TIDY "Enable static analysis with clang-tidy" OFF) #does not work with c++20 features and precompiled headers together
+option(ENABLE_CPPCHECK "Enable static analysis with cppcheck" OFF) 
+option(ENABLE_CLANG_TIDY "Enable static analysis with clang-tidy" OFF) 
 option(ENABLE_INCLUDE_WHAT_YOU_USE "Enable static analysis with include-what-you-use" OFF)
 
 if(ENABLE_CPPCHECK)
