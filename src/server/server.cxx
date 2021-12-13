@@ -7,8 +7,6 @@ using namespace boost::asio;
 using boost::asio::ip::tcp;
 using tcp_acceptor = use_awaitable_t<>::as_default_on_t<tcp::acceptor>;
 
-namespace this_coro = boost::asio::this_coro;
-
 Server::Server (boost::asio::ip::tcp::endpoint const &endpoint) : _endpoint{ endpoint } {}
 
 awaitable<std::string>
