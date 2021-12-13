@@ -6,8 +6,9 @@
 #include <boost/beast.hpp>
 #include <deque>
 
-// TODO use cmake to find out if the compiler is gcc or clang
-#include <experimental/coroutine> // disable if you do not like to use clang
+#ifdef BOOST_ASIO_HAS_CLANG_LIBCXX
+#include <experimental/coroutine>
+#endif
 
 typedef boost::asio::use_awaitable_t<>::as_default_on_t<boost::asio::basic_waitable_timer<boost::asio::chrono::system_clock> > CoroTimer;
 using Websocket = boost::beast::websocket::stream<boost::asio::use_awaitable_t<>::as_default_on_t<boost::beast::tcp_stream> >;
