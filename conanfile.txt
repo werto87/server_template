@@ -1,5 +1,5 @@
 [requires]
-boost/1.76.0
+boost/1.77.0
 catch2/2.13.1
 [generators]
 cmake

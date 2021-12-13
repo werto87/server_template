@@ -1,27 +1,11 @@
 #include "src/server/user.hxx"
 #include "server.hxx"
-#include "src/logic/logic.hxx"
-#include <algorithm>
-#include <boost/asio.hpp>
-#include <boost/asio/io_context.hpp>
-#include <boost/asio/system_timer.hpp>
-#include <boost/beast.hpp>
-#include <boost/beast/websocket.hpp>
-#include <chrono>
-#include <cstddef>
 #include <iostream>
-#include <list>
-#include <memory>
-#include <string>
-
-// TODO use cmake to find out if the compiler is gcc or clang
-#include <coroutine> // enable if build with gcc
-// #include <experimental/coroutine> //enable if build with clang
 
 using namespace boost::beast;
 using namespace boost::asio;
 
-boost::asio::awaitable<void>
+awaitable<void>
 User::writeToClient (std::weak_ptr<Websocket> &connection)
 {
   try
@@ -52,7 +36,7 @@ User::writeToClient (std::weak_ptr<Websocket> &connection)
               auto tmpMsg = std::move (msgQueue.front ());
               std::cout << " msg: " << tmpMsg << std::endl;
               msgQueue.pop_front ();
-              co_await connection.lock ()->async_write (buffer (tmpMsg), use_awaitable);
+              co_await connection.lock ()->async_write (buffer (tmpMsg));
             }
         }
     }

@@ -1,16 +1,6 @@
 #include "server.hxx"
 #include "src/logic/logic.hxx"
-#include <algorithm>
-#include <boost/asio.hpp>
-#include <boost/asio/io_context.hpp>
-#include <boost/beast.hpp>
-#include <boost/beast/websocket.hpp>
-#include <chrono>
 #include <iostream>
-
-// TODO use cmake to find out if the compiler is gcc or clang
-#include <coroutine> // enable if build with gcc
-// #include <experimental/coroutine> //enable if build with clang
 
 using namespace boost::beast;
 using namespace boost::asio;
@@ -26,7 +16,7 @@ Server::my_read (Websocket &ws_)
 {
   std::cout << "read" << std::endl;
   flat_buffer buffer;
-  co_await ws_.async_read (buffer, use_awaitable);
+  co_await ws_.async_read (buffer);
   auto msg = buffers_to_string (buffer.data ());
   std::cout << "number of letters '" << msg.size () << "' msg: '" << msg << "'" << std::endl;
   co_return msg;
@@ -66,12 +56,12 @@ Server::listener ()
       try
         {
           auto socket = co_await acceptor.async_accept ();
-          auto connection = std::make_shared<Websocket> (std::move (socket));
+          auto connection = std::make_shared<Websocket> (Websocket{ std::move (socket) });
           users.emplace_back (std::make_shared<User> ());
           std::list<std::shared_ptr<User> >::iterator user = std::next (users.end (), -1);
           connection->set_option (websocket::stream_base::timeout::suggested (role_type::server));
           connection->set_option (websocket::stream_base::decorator ([] (websocket::response_type &res) { res.set (http::field::server, std::string (BOOST_BEAST_VERSION_STRING) + " websocket-server-async"); }));
-          co_await connection->async_accept (use_awaitable);
+          co_await connection->async_accept ();
           co_spawn (
               executor, [connection, this, &user] () mutable { return readFromClient (user, *connection); }, detached);
           co_spawn (

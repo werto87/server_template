@@ -2,14 +2,7 @@
 #define AC7BAF85_A15E_49E8_AD93_D8065253C6DF
 
 #include "user.hxx"
-#include <boost/asio.hpp>
-#include <boost/asio/io_context.hpp>
-#include <boost/beast.hpp>
-#include <boost/beast/websocket.hpp>
-#include <cstddef>
 #include <list>
-#include <memory>
-#include <string>
 
 class Server
 {
