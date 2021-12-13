@@ -12,8 +12,7 @@ User::writeToClient (std::weak_ptr<Websocket> &connection)
     {
       while (not connection.expired ())
         {
-          timer = std::make_shared<CoroTimer> (CoroTimer{ co_await this_coro::executor });
-          timer->expires_at (std::chrono::system_clock::time_point::max ());
+          timer = std::make_shared<CoroTimer> (CoroTimer{ co_await this_coro::executor, std::chrono::system_clock::time_point::max () });
           try
             {
               co_await timer->async_wait ();
