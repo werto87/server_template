@@ -1,5 +1,4 @@
 #include "src/server/server.hxx"
-#include <boost/bind/bind.hpp>
 #include <exception>
 #include <iostream>
 #include <stdexcept>
