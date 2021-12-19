@@ -1,7 +1,8 @@
 [requires]
 boost/1.77.0
-catch2/2.13.1
+catch2/2.13.7
 [generators]
 cmake
 [options]
 boost:header_only=True
+catch2:with_main=True
